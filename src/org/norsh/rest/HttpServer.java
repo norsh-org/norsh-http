@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
+import javax.net.ssl.*;
 import org.norsh.exceptions.InternalException;
 import org.norsh.rest.annotations.Mapping;
 
@@ -96,27 +96,27 @@ public class HttpServer {
      *
      * @param port The port number to listen on.
      */
-    public void start(int port) {
+    public void start(int port, boolean useSSL) {
         try {
             isRunning = true;
-            serverSocket = new ServerSocket(port, backlog);
+            if (useSSL) {
+                serverSocket = createSSLServerSocket(port);
+            } else {
+                serverSocket = new ServerSocket(port);
+            }
+    
             serverSocket.setPerformancePreferences(2, 1, 0);
             threadPool = Executors.newFixedThreadPool(threads);
-
+    
             while (isRunning) {
-                try {
-                    Socket clientSocket = serverSocket.accept();
-                    threadPool.submit(() -> new Instance(clientSocket, this));
-                } catch (IOException e) {
-                    if (isRunning) {
-                        e.printStackTrace(); // Replace with proper logging
-                    }
-                }
+                Socket clientSocket = serverSocket.accept();
+                threadPool.submit(() -> new Instance(clientSocket, this));
             }
         } catch (Exception ex) {
             throw new InternalException(ex);
         }
     }
+
 
     /**
      * Stops the HTTP server, closing all connections and shutting down the thread pool.
@@ -206,4 +206,20 @@ public class HttpServer {
     public boolean isRunning() {
         return isRunning;
     }
+
+    private SSLServerSocket createSSLServerSocket(int port) throws Exception {
+    KeyStore keyStore = KeyStore.getInstance("JKS");
+    try (FileInputStream keyStoreFile = new FileInputStream("keystore.jks")) {
+        keyStore.load(keyStoreFile, "password".toCharArray()); // Altere para a senha do seu keystore
+    }
+
+    KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+    kmf.init(keyStore, "password".toCharArray());
+
+    SSLContext sslContext = SSLContext.getInstance("TLS");
+    sslContext.init(kmf.getKeyManagers(), null, null);
+
+    SSLServerSocketFactory factory = sslContext.getServerSocketFactory();
+    return (SSLServerSocket) factory.createServerSocket(port);
+}
 }
