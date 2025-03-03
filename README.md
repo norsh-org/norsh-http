@@ -1,6 +1,6 @@
 # Norsh HTTP Server
 
-A lightweight and efficient HTTP server implemented in pure Java, designed to replace Spring MVC with a custom annotation-based request handling system.
+A lightweight and efficient HTTP server implemented in pure Java.
 
 ## Features
 - Native Java HTTP Server without external dependencies.
