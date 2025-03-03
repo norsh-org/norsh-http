@@ -1,6 +1,6 @@
 # Norsh HTTP Server
 
-A lightweight and efficient HTTP server implemented in pure Java.
+A high-performance HTTP server built specifically for Norsh, optimized for handling structured data exchanges within the ecosystem. Designed to eliminate non-essential processes, ensuring maximum efficiency and minimal overhead for Norsh operations.
 
 ## Features
 - Native Java HTTP Server without external dependencies.
@@ -9,6 +9,7 @@ A lightweight and efficient HTTP server implemented in pure Java.
 - Custom Exception Handling via `@ThrowableHandler`.
 - Thread Pool Management for high-performance request handling.
 - JSON serialization/deserialization for request and response bodies.
+- SSL/TLS support for secure HTTPS connections.
 
 ---
 
@@ -20,7 +21,7 @@ git clone https://github.com/norsh/http-server.git
 cd http-server
 ```
 
-### Build and install the project
+### Install the project
 ```sh
 mvn clean install
 ```
@@ -34,13 +35,36 @@ You can customize:
 - Thread Pool Size
 - Backlog Size
 - Exception Handlers
+- SSL/TLS Configuration
 
 Example:
 ```java
 HttpServer server = new HttpServer();
 server.setThreads(8);
 server.setBacklog(100);
-server.start(8080);
+server.start(8080, false); // HTTP mode
+```
+
+---
+
+## Using SSL/TLS (HTTPS)
+
+### 1️⃣ Generate a Keystore (For Testing)
+```sh
+keytool -genkeypair -alias norsh-server -keyalg RSA -keysize 2048 -keystore keystore.jks -validity 365
+```
+
+### 2️⃣ Configure the Server to Use SSL/TLS
+```java
+HttpServer server = new HttpServer();
+server.setKeystore("keystore.jks", "password");
+server.start(8443, true); // HTTPS mode
+```
+
+### 3️⃣ Test the HTTPS Connection
+Using `curl`:
+```sh
+curl -k https://localhost:8443/hello
 ```
 
 ---
@@ -69,7 +93,7 @@ public class ExampleHandler {
 ```java
 HttpServer server = new HttpServer();
 server.addEndpoint(ExampleHandler.class);
-server.start(8080);
+server.start(8080, false); // HTTP Mode
 ```
 
 ### Handle Exceptions Globally
