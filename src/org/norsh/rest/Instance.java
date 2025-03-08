@@ -49,7 +49,6 @@ public class Instance {
 			Long end = System.currentTimeMillis();
 			response.setDuration(end - start);
 
-			request.setCloseConnection(true);
 			response.writeResponse();
 		} catch (InvocationTargetException e) {
 			throwableHandler(server, request, response, e.getCause());

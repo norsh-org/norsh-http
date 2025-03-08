@@ -101,6 +101,9 @@ public class RestResponse {
             // Serialize body if applicable
             Integer contentLength = 0;
             Object responseBody = body;
+            
+            System.out.println(status + ": " + body);
+            
             if (responseBody != null) {
                 responseBody = Converter.toJson(responseBody);
                 contentLength = responseBody.toString().length();
@@ -113,12 +116,8 @@ public class RestResponse {
             }
 
             // Connection management
-            if (request.getCloseConnection()) {
-                addHeader("Connection", "close");
-            } else {
-                addHeader("Connection", "keep-alive");
-            }
-
+            addHeader("Connection", "close");
+         
             if (getDuration() > 0) {
             	addHeader("X-Duration", String.valueOf(getDuration()));
             }

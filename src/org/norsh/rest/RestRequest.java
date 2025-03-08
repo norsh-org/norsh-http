@@ -39,7 +39,6 @@ public class RestRequest {
     private Endpoint endpoint = null;
     private Object handler;
     private Method method;
-    private Boolean closeConnection = true;
 
     /**
      * Parses an incoming HTTP request from a socket connection.
@@ -122,10 +121,6 @@ public class RestRequest {
                     request.httpStatus = HttpStatus.UNSUPPORTED_MEDIA_TYPE;
                     return request;
                 }
-            }
-
-            if ("keep-alive".equalsIgnoreCase(request.headers.getOrDefault("Connection", "").trim())) {
-                request.closeConnection = false;
             }
 
             extractPathParams(request.endpoint, request);
@@ -233,13 +228,5 @@ public class RestRequest {
 
     public Map<String, List<String>> getQuery() {
         return query;
-    }
-
-    public void setCloseConnection(Boolean closeConnection) {
-        this.closeConnection = closeConnection;
-    }
-
-    public Boolean getCloseConnection() {
-        return closeConnection;
     }
 }
