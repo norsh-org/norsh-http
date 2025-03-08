@@ -2,6 +2,7 @@ package org.norsh.rest;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -47,21 +48,43 @@ public class HttpServer {
      * @param routeType The class containing HTTP request handlers.
      */
     public void addEndpoint(Class<?> routeType) {
+        Mapping type = routeType.getAnnotation(Mapping.class);
+        if (type == null) {
+            type = new Mapping() {
+                @Override
+                public Class<? extends Annotation> annotationType() {
+                    return Mapping.class;
+                }
+
+                @Override
+                public String[] value() {
+                    return new String[]{""};
+                }
+
+                @Override
+                public RestMethod[] method() {
+                    return new RestMethod[]{RestMethod.GET, RestMethod.POST, RestMethod.PUT, RestMethod.DELETE};
+                }
+            };
+        }
+
         try {
             Object handler = routeType.getConstructor().newInstance();
 
             for (Method method : routeType.getMethods()) {
-                for (Mapping mapping : method.getAnnotationsByType(Mapping.class)) {
-                    for (RestMethod httpMethod : mapping.method()) {
-                        for (String url : mapping.value()) {
-                            Endpoint endpoint = new Endpoint(httpMethod, url, handler, method);
-                            endpoints.put(endpoint.getRegex(), endpoint);
+                for (String root : type.value()) {
+                    for (Mapping mapping : method.getAnnotationsByType(Mapping.class)) {
+                        for (RestMethod httpMethod : mapping.method()) {
+                            for (String url : mapping.value()) {
+                                Endpoint endpoint = new Endpoint(httpMethod, root.concat(url), handler, method);
+                                endpoints.put(endpoint.getRegex(), endpoint);
+                            }
                         }
                     }
                 }
             }
         } catch (Exception e) {
-            throw new InternalException("Failed to register endpoint: " + routeType.getName(), e);
+            throw new InternalException(e.getMessage(), e);
         }
     }
 

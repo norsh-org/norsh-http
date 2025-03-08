@@ -40,6 +40,8 @@ public class RestResponse {
 
     /** The associated request instance. */
     private final RestRequest request;
+    
+    private Long duration = 0l;
 
     /**
      * Constructs a new HTTP response.
@@ -117,6 +119,10 @@ public class RestResponse {
                 addHeader("Connection", "keep-alive");
             }
 
+            if (getDuration() > 0) {
+            	addHeader("X-Duration", String.valueOf(getDuration()));
+            }
+            
             // Write headers
             for (Map.Entry<String, String> header : headers.entrySet()) {
                 writer.println(header.getKey() + ": " + header.getValue());

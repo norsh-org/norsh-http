@@ -31,7 +31,7 @@ public @interface Mapping {
      *
      * @return An array of route patterns.
      */
-    String[] value();
+    String[] value() default "";
 
     /**
      * Defines the HTTP methods that this mapping supports.

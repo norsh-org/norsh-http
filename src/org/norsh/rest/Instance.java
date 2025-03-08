@@ -1,6 +1,5 @@
 package org.norsh.rest;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -50,8 +49,12 @@ public class Instance {
                 Method method = request.getMethod();
                 Object[] args = buildArguments(method, request, response);
 
+                Long start = System.currentTimeMillis();
                 method.invoke(request.getHandler(), args);
-
+                
+                Long end = System.currentTimeMillis();
+                response.setDuration(end - start);
+                
                 if (loop == KEEP_ALIVE_LOOP || request.getHttpStatus() != HttpStatus.OK) {
                     request.setCloseConnection(true);
                 }
@@ -62,10 +65,10 @@ public class Instance {
                     break;
                 }
             } catch (InvocationTargetException e) {
-                throwableHandler(server, request, response, e.getCause());
+            	throwableHandler(server, request, response, e.getCause());
                 break;
             } catch (Throwable t) {
-                throwableHandler(server, request, response, t);
+            	throwableHandler(server, request, response, t);
                 break;
             }
         }
@@ -170,9 +173,9 @@ public class Instance {
      * @param socket The socket to close.
      */
     private void close(Socket socket) {
-        try {
-            socket.close();
-        } catch (IOException ignored) {
-        }
+//        try {
+//            socket.close();
+//        } catch (IOException ignored) {
+//        }
     }
 }

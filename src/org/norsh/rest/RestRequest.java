@@ -51,7 +51,8 @@ public class RestRequest {
     public static RestRequest build(Socket socket, HttpServer server) {
         RestRequest request = new RestRequest();
 
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()), 2048)) {
+        try {
+        	BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()), 2048);
             String line = in.readLine();
             if (line == null || line.isEmpty()) {
                 request.httpStatus = HttpStatus.BAD_REQUEST;
