@@ -31,7 +31,6 @@ import org.norsh.rest.annotations.Mapping;
  * @see <a href="https://docs.norsh.org">Norsh Documentation</a>
  */
 public class HttpServer {
-
     private volatile boolean isRunning = false;
     private final Map<String, Endpoint> endpoints = new HashMap<>();
     private Object throwableHandler;
